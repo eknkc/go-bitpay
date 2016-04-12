@@ -1,0 +1,40 @@
+{
+	"ImportPath": "gitlab.kovan.io/restpack/go-bitpay",
+	"GoVersion": "go1.6",
+	"GodepVersion": "v62",
+	"Deps": [
+		{
+			"ImportPath": "github.com/bitpay/bitpay-go/client",
+			"Comment": "v2.2.2-2-g52506f4",
+			"Rev": "52506f4eed29758eb3c2dd91c8887db6b7771d37"
+		},
+		{
+			"ImportPath": "github.com/bitpay/bitpay-go/key_utils",
+			"Comment": "v2.2.2-2-g52506f4",
+			"Rev": "52506f4eed29758eb3c2dd91c8887db6b7771d37"
+		},
+		{
+			"ImportPath": "github.com/btcsuite/btcd/btcec",
+			"Comment": "BTCD_0_12_0_BETA-69-g5ff5fc5",
+			"Rev": "5ff5fc5fa21e9d92a68dd888dbdc7d1eddf26cf7"
+		},
+		{
+			"ImportPath": "github.com/btcsuite/btcutil/base58",
+			"Comment": "BTCUTIL_0_5_0-6-gbdf4400",
+			"Rev": "bdf4400ecafb82f0c121ed5db1ae70639e7f4018"
+		},
+		{
+			"ImportPath": "github.com/btcsuite/fastsha256",
+			"Rev": "302ad4db268b46f9ebda3078f6f7397f96047735"
+		},
+		{
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-62-gbf4a526",
+			"Rev": "bf4a526f48af7badd25d2cb02d587e1b01be3b50"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ripemd160",
+			"Rev": "1e856cbfdf9bc25eefca75f83f25d55e35ae72e0"
+		}
+	]
+}
