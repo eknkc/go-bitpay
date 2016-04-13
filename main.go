@@ -78,6 +78,10 @@ func main() {
 					Name:  "redirect",
 					Usage: "Redirect URL",
 				},
+				cli.StringFlag{
+					Name:  "pos",
+					Usage: "POS Data",
+				},
 			},
 			Action: func(c *cli.Context) {
 				if len(c.Args()) < 1 {
@@ -109,6 +113,10 @@ func main() {
 
 					if len(c.String("redirect")) > 0 {
 						payload["redirectURL"] = c.String("redirect")
+					}
+
+					if len(c.String("pos")) > 0 {
+						payload["posData"] = c.String("pos")
 					}
 
 					if resp, err := post(bc, "invoices", payload); err != nil {
