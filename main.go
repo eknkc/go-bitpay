@@ -6,6 +6,8 @@ import "strconv"
 import "encoding/json"
 import "github.com/codegangsta/cli"
 import "io/ioutil"
+import "net/http"
+import "errors"
 import bp "github.com/bitpay/bitpay-go/client"
 import ku "github.com/bitpay/bitpay-go/key_utils"
 
@@ -67,6 +69,16 @@ func main() {
 		cli.Command{
 			Name:  "create",
 			Usage: "create <price> - Create a new invoice for <price> usd",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "ipn",
+					Usage: "Notificateion URL",
+				},
+				cli.StringFlag{
+					Name:  "redirect",
+					Usage: "Redirect URL",
+				},
+			},
 			Action: func(c *cli.Context) {
 				if len(c.Args()) < 1 {
 					fmt.Println("price not specified.")
@@ -81,64 +93,64 @@ func main() {
 					bc, err := loadClient()
 
 					if err != nil {
-						fmt.Println(err)
-						return
+						panic(err)
 					}
 
-					inv, err := bc.CreateInvoice(price, "USD")
+					payload := make(map[string]string)
+					payload["price"] = strconv.FormatFloat(price, 'f', 2, 64)
+					payload["currency"] = "USD"
+					payload["token"] = bc.Token.Token
+					payload["id"] = bc.ClientId
 
-					if err != nil {
-						fmt.Println(err)
-						return
+					if len(c.String("ipn")) > 0 {
+						payload["notificationURL"] = c.String("ipn")
+						payload["fullNotifications"] = "true"
 					}
 
-					js, err := json.MarshalIndent(inv, "", "  ")
-
-					if err != nil {
-						fmt.Println(err)
-						return
+					if len(c.String("redirect")) > 0 {
+						payload["redirectURL"] = c.String("redirect")
 					}
 
-					fmt.Println(string(js))
+					if resp, err := post(bc, "invoices", payload); err != nil {
+						panic(err)
+					} else {
+						js, _ := json.MarshalIndent(resp, "", "  ")
+						fmt.Println(string(js))
+					}
 				}
-			},
-		},
-		cli.Command{
-			Name:  "get",
-			Usage: "get <invoiceId> - Get the status of an invoice",
-			Action: func(c *cli.Context) {
-				if len(c.Args()) < 1 {
-					fmt.Println("id not specified.")
-					return
-				}
-
-				bc, err := loadClient()
-
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-
-				inv, err := bc.GetInvoice(c.Args()[0])
-
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-
-				js, err := json.MarshalIndent(inv, "", "  ")
-
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
-
-				fmt.Println(string(js))
 			},
 		},
 	}
 
 	app.Run(os.Args)
+}
+
+func post(bc *bp.Client, path string, payload map[string]string) (interface{}, error) {
+	process := func(response *http.Response) (interface{}, error) {
+		defer response.Body.Close()
+
+		if contents, err := ioutil.ReadAll(response.Body); err != nil {
+			return nil, err
+		} else {
+			var jsonContents map[string]interface{}
+			json.Unmarshal(contents, &jsonContents)
+
+			if response.StatusCode/100 != 2 {
+				fmt.Println(string(contents))
+				return nil, errors.New("Unable to create invoice")
+			} else {
+				return jsonContents["data"], nil
+			}
+		}
+	}
+
+	if response, err := bc.Post(path, payload); err != nil {
+		return nil, err
+	} else if data, err := process(response); err != nil {
+		return nil, err
+	} else {
+		return data, nil
+	}
 }
 
 func loadClient() (*bp.Client, error) {
