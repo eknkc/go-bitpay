@@ -1,15 +1,19 @@
 package main
 
-import "fmt"
-import "os"
-import "strconv"
-import "encoding/json"
-import "github.com/codegangsta/cli"
-import "io/ioutil"
-import "net/http"
-import "errors"
-import bp "github.com/bitpay/bitpay-go/client"
-import ku "github.com/bitpay/bitpay-go/key_utils"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"os"
+	"strconv"
+
+	"github.com/codegangsta/cli"
+
+	bp "github.com/bitpay/bitpay-go/client"
+	ku "github.com/bitpay/bitpay-go/key_utils"
+)
 
 type config struct {
 	Pem string
